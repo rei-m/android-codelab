@@ -5,20 +5,18 @@ import androidx.appcompat.app.AppCompatActivity
 
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.compose.unaryPlus
+import androidx.ui.core.CurrentTextStyleProvider
 
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.Spacing
-import androidx.ui.layout.WidthSpacer
-import androidx.ui.material.Button
-import androidx.ui.material.Divider
-import androidx.ui.material.MaterialTheme
+import androidx.ui.layout.*
+import androidx.ui.material.*
 import androidx.ui.material.surface.Surface
+import androidx.ui.text.TextStyle
 import androidx.ui.tooling.preview.Preview
 
 class MainActivity : AppCompatActivity() {
@@ -46,9 +44,28 @@ data class Item(val name: String, val description: String)
 @Model
 class CounterState(var count: Int = 0)
 
+val green = Color(0xFF1EB980.toInt())
+val grey = Color(0xFF26282F.toInt())
+private val themeColors = MaterialColors(
+    primary = green,
+    surface = grey,
+    onSurface = Color.White
+)
+
+@Composable
+fun CustomTheme(children: @Composable() () -> Unit) {
+    MaterialTheme(colors = themeColors) {
+        val textStyle = TextStyle(color = Color.Red)
+        CurrentTextStyleProvider(value = textStyle) {
+            children()
+        }
+    }
+}
+
+
 @Composable
 fun MyApp(child: @Composable() () -> Unit) {
-    MaterialTheme {
+    CustomTheme {
         Surface(color = Color.Yellow) {
             child()
         }
@@ -61,25 +78,35 @@ fun Counter(state: CounterState) {
         text = "I've been clicked ${state.count} times",
         onClick = {
             state.count++
-        }
+        },
+        style = ContainedButtonStyle(color = if (state.count > 5) Color.Green else Color.White)
+
     )
 }
 
 @Composable
-fun MyScreenContent(names: List<String> = listOf("Android", "there"), counterState: CounterState = CounterState()) {
-    Column {
-        names.forEach { name ->
-            Greeting(name = name)
-            Divider(color = Color.Black)
+fun MyScreenContent(
+    names: List<String> = listOf("Android", "there"),
+    counterState: CounterState = CounterState()
+) {
+    Column(modifier = ExpandedHeight, crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(modifier = Flexible(1f), crossAxisAlignment = CrossAxisAlignment.Center) {
+            for (name in names) {
+                Greeting(name = name)
+                Divider(color = Color.Black)
+            }
         }
-        Divider(color = Color.Transparent, height = 32.dp)
         Counter(counterState)
     }
 }
 
 @Composable
 fun Greeting(name: String) {
-    Text (text = "Hello $name!", modifier = Spacing(24.dp))
+    Text (
+        text = "Hello $name!",
+        modifier = Spacing(24.dp),
+        style = +themeTextStyle { h2 }
+    )
 }
 
 @Composable
@@ -105,7 +132,7 @@ fun RenderItem(item: Item, onClick: () -> Unit) {
 @Preview
 @Composable
 fun DefaultPreview() {
-    MyApp {
-        MyScreenContent()
+    MaterialTheme {
+        Greeting("Android")
     }
 }
