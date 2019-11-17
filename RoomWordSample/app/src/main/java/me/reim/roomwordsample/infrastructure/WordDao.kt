@@ -1,0 +1,20 @@
+package me.reim.roomwordsample.infrastructure
+
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import me.reim.roomwordsample.models.Word
+
+@Dao
+interface WordDao {
+    @Query("SELECT * from word_table ORDER BY word ASC")
+    fun getAlphabetizedWords(): LiveData<List<Word>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE) // DeleteとUpdateも同じ体で使える
+    suspend fun insert(word: Word)
+
+    @Query("DELETE FROM word_table")
+    suspend fun deleteAll()
+}
