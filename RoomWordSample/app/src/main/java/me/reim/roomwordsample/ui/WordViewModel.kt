@@ -22,7 +22,7 @@ class WordViewModel(application: Application) : AndroidViewModel(application) {
         // この辺DIしたほうがいいんだけどとりあえずサンプル通り
         // Gets reference to WordDao from WordRoomDatabase to construct
         // the correct WordRepository.
-        val wordsDao = WordRoomDatabase.getDatabase(application).wordDao()
+        val wordsDao = WordRoomDatabase.getDatabase(application, viewModelScope).wordDao()
         repository = WordRepositoryImpl(wordsDao)
         allWords = repository.allWords
     }
