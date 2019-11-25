@@ -40,6 +40,8 @@ public class SavedStateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.saved_state_activity);
 
+        // Factory必要っぽいけど無くても大丈夫？？？
+        // androidx.lifecycle.SavedStateViewModelFactory
         // Obtain the ViewModel
         mSavedStateViewModel = new ViewModelProvider(this).get(SavedStateViewModel.class);
 
