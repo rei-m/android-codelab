@@ -48,6 +48,7 @@ class FakeNetworkCallAwaitTest {
 //            // since this is asynchronous code, this may be called *after* the test completes
 //            subject.await()
 //        }
+        // 常に内部のSuspend関数をBlockする呼び出しらしい
         runBlocking {
             subject.await()
         }
