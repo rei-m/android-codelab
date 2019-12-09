@@ -3,4 +3,5 @@
     <dimen name="spacing_1">8dp</dimen>
     <dimen name="spacing_3">24dp</dimen>
     <dimen name="spacing_2">16dp</dimen>
+    <dimen name="fan_dimen">200dp</dimen>
 </resources>
