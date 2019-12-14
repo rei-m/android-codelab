@@ -4,7 +4,11 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -30,15 +34,6 @@ class DialView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
-    init {
-        isClickable = true
-        context.withStyledAttributes(attrs, R.styleable.DialView) {
-            fanSpeedLowColor = getColor(R.styleable.DialView_fanColor1, 0)
-            fanSpeedMediumColor = getColor(R.styleable.DialView_fanColor2, 0)
-            fanSeedMaxColor = getColor(R.styleable.DialView_fanColor3, 0)
-        }
-    }
-
     private var radius = 0.0f                   // Radius of the circle.
 
     private var fanSpeed = FanSpeed.OFF         // The active selection.
@@ -56,6 +51,30 @@ class DialView @JvmOverloads constructor(
     private var fanSpeedLowColor = 0
     private var fanSpeedMediumColor = 0
     private var fanSeedMaxColor = 0
+
+    init {
+        isClickable = true
+        context.withStyledAttributes(attrs, R.styleable.DialView) {
+            fanSpeedLowColor = getColor(R.styleable.DialView_fanColor1, 0)
+            fanSpeedMediumColor = getColor(R.styleable.DialView_fanColor2, 0)
+            fanSeedMaxColor = getColor(R.styleable.DialView_fanColor3, 0)
+        }
+        updateContentDescription()
+
+        ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
+            override fun onInitializeAccessibilityNodeInfo(
+                host: View,
+                info: AccessibilityNodeInfoCompat
+            ) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                val customClick = AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                    AccessibilityNodeInfo.ACTION_CLICK,
+                    context.getString(if (fanSpeed != FanSpeed.HIGH) R.string.change else R.string.reset)
+                )
+                info.addAction(customClick)
+            }
+        })
+    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         radius = (kotlin.math.min(width, height) / 2.0 * 0.8).toFloat()
@@ -91,12 +110,14 @@ class DialView @JvmOverloads constructor(
 
     override fun performClick(): Boolean {
         if (super.performClick()) return true
-
         fanSpeed = fanSpeed.next()
-        contentDescription = resources.getString(fanSpeed.label)
-
+        updateContentDescription()
         invalidate()
         return true
+    }
+
+    private fun updateContentDescription() {
+        contentDescription = resources.getString(fanSpeed.label)
     }
 
     private fun PointF.computeXYForSpeed(pos: FanSpeed, radius: Float) {
